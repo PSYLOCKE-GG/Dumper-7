@@ -21,6 +21,7 @@ namespace Settings
 	{
 		inline int SleepTimeout = 0;
 		inline std::string SDKNamespaceName = "SDK";
+		inline bool CloseAfterGeneration = false;
 
 		void Load();
 	};

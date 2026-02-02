@@ -123,13 +123,28 @@ void Settings::Config::Load()
 		ConfigPath = GlobalConfigPath;
 	}
 
-	// If no config found, use defaults
-	if (!ConfigPath) 
-		return;
+	// Load from config file (if exists)
+	if (ConfigPath)
+	{
+		char SDKNamespace[256] = {};
+		GetPrivateProfileStringA("Settings", "SDKNamespaceName", "SDK", SDKNamespace, sizeof(SDKNamespace), ConfigPath);
+		SDKNamespaceName = SDKNamespace;
+		SleepTimeout = max(GetPrivateProfileIntA("Settings", "SleepTimeout", 0, ConfigPath), 0);
+		CloseAfterGeneration = GetPrivateProfileIntA("Settings", "CloseAfterGeneration", 0, ConfigPath) != 0;
+	}
 
-	char SDKNamespace[256] = {};
-	GetPrivateProfileStringA("Settings", "SDKNamespaceName", "SDK", SDKNamespace, sizeof(SDKNamespace), ConfigPath);
+	if (const char* EnvNamespace = std::getenv("DUMPER7_SDK_NAMESPACE"))
+	{
+		SDKNamespaceName = EnvNamespace;
+	}
 
-	SDKNamespaceName = SDKNamespace;
-	SleepTimeout = max(GetPrivateProfileIntA("Settings", "SleepTimeout", 0, ConfigPath), 0);
+	if (const char* EnvTimeout = std::getenv("DUMPER7_SLEEP_TIMEOUT"))
+	{
+		SleepTimeout = max(std::atoi(EnvTimeout), 0);
+	}
+
+	if (const char* EnvClose = std::getenv("DUMPER7_CLOSE_AFTER_GENERATION"))
+	{
+		CloseAfterGeneration = std::atoi(EnvClose) != 0;
+	}
 }

@@ -72,6 +72,16 @@ DWORD MainThread(HMODULE Module)
 
 	std::cerr << "\n\nGenerating SDK took (" << DumpTime.count() << "ms)\n\n\n";
 
+	if (Settings::Config::CloseAfterGeneration)
+	{
+		fclose(stderr);
+		if (Dummy) fclose(Dummy);
+		FreeConsole();
+
+		FreeLibraryAndExitThread(Module, 0);
+		return 0;
+	}
+
 	while (true)
 	{
 		if (GetAsyncKeyState(VK_F6) & 1)
