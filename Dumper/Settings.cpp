@@ -106,6 +106,18 @@ void Settings::InitArrayDimSizeSettings()
 	std::cerr << std::format("\nDumper-7: bUseUint8ArrayDim = {}\n", Settings::Internal::bUseUint8ArrayDim) << std::endl;
 }
 
+std::string GetEnvVar(const char* name)
+{
+	char* value = nullptr;
+	size_t len = 0;
+	if (_dupenv_s(&value, &len, name) == 0 && value) {
+		std::string result(value);
+		free(value);
+		return result;
+	}
+	return "";
+}
+
 void Settings::Config::Load()
 {
 	namespace fs = std::filesystem;
@@ -129,22 +141,37 @@ void Settings::Config::Load()
 		char SDKNamespace[256] = {};
 		GetPrivateProfileStringA("Settings", "SDKNamespaceName", "SDK", SDKNamespace, sizeof(SDKNamespace), ConfigPath);
 		SDKNamespaceName = SDKNamespace;
+
+		char SDKGeneratorPath[256] = {};
+		GetPrivateProfileStringA("Settings", "SDKGenerationPath", "SDK", SDKGeneratorPath, sizeof(SDKGeneratorPath), ConfigPath);
+		Generator::SDKGenerationPath = SDKGeneratorPath;
+
 		SleepTimeout = max(GetPrivateProfileIntA("Settings", "SleepTimeout", 0, ConfigPath), 0);
 		CloseAfterGeneration = GetPrivateProfileIntA("Settings", "CloseAfterGeneration", 0, ConfigPath) != 0;
 	}
 
-	if (const char* EnvNamespace = std::getenv("DUMPER7_SDK_NAMESPACE"))
-	{
+	std::string EnvNamespace = GetEnvVar("DUMPER7_SDK_NAMESPACE");
+	if (!EnvNamespace.empty()) {
 		SDKNamespaceName = EnvNamespace;
 	}
 
-	if (const char* EnvTimeout = std::getenv("DUMPER7_SLEEP_TIMEOUT"))
-	{
-		SleepTimeout = max(std::atoi(EnvTimeout), 0);
+	std::string EnvTimeout = GetEnvVar("DUMPER7_SLEEP_TIMEOUT");
+	if (!EnvTimeout.empty()) {
+		SleepTimeout = max(std::atoi(EnvTimeout.c_str()), 0);
 	}
 
-	if (const char* EnvClose = std::getenv("DUMPER7_CLOSE_AFTER_GENERATION"))
-	{
-		CloseAfterGeneration = std::atoi(EnvClose) != 0;
+	std::string EnvClose = GetEnvVar("DUMPER7_CLOSE_AFTER_GENERATION");
+	if (!EnvClose.empty()) {
+		CloseAfterGeneration = std::atoi(EnvClose.c_str()) != 0;
+	}
+
+	std::string EnvConsoleWindow = GetEnvVar("DUMPER7_CONSOLE_WINDOW");
+	if (!EnvConsoleWindow.empty()) {
+		ConsoleWindow = std::atoi(EnvConsoleWindow.c_str()) != 0;
+	}
+
+	std::string EnvPath = GetEnvVar("DUMPER7_SDK_GENERATION_PATH");
+	if (!EnvPath.empty()) {
+		Generator::SDKGenerationPath = EnvPath;
 	}
 }

@@ -20,14 +20,17 @@ enum class EFortToastType : uint8
 
 DWORD MainThread(HMODULE Module)
 {
-	AllocConsole();
-	FILE* Dummy;
-	freopen_s(&Dummy, "CONOUT$", "w", stderr);
-	freopen_s(&Dummy, "CONIN$", "r", stdin);
+	Settings::Config::Load();
+	
+	FILE* Dummy = nullptr;
+	if (Settings::Config::ConsoleWindow)
+	{
+		AllocConsole();
+		freopen_s(&Dummy, "CONOUT$", "w", stderr);
+		freopen_s(&Dummy, "CONIN$", "r", stdin);
+	}
 
 	std::cerr << "Started Generation [Dumper-7]!\n";
-
-	Settings::Config::Load();
 
 	if (Settings::Config::SleepTimeout > 0)
 	{
@@ -78,7 +81,7 @@ DWORD MainThread(HMODULE Module)
 		if (Dummy) fclose(Dummy);
 		FreeConsole();
 
-		FreeLibraryAndExitThread(Module, 0);
+		ExitProcess(0);
 		return 0;
 	}
 

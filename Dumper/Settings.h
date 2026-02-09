@@ -22,6 +22,7 @@ namespace Settings
 		inline int SleepTimeout = 0;
 		inline std::string SDKNamespaceName = "SDK";
 		inline bool CloseAfterGeneration = false;
+		bool ConsoleWindow = true;
 
 		void Load();
 	};
@@ -41,7 +42,7 @@ namespace Settings
 		inline std::string GameName = "";
 		inline std::string GameVersion = "";
 
-		inline constexpr const char* SDKGenerationPath = "C:/Dumper-7";
+		inline std::string SDKGenerationPath = "C:/Dumper-7";
 	}
 
 	namespace CppGenerator
